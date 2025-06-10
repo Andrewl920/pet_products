@@ -5,6 +5,9 @@ from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.chrome.service import Service
 import undetected_chromedriver as uc
 import pyautogui
+import os
+import requests
+from bs4 import BeautifulSoup
 
 class WebScraping:
     def __init__(self, page_number = 1):
@@ -30,8 +33,22 @@ class WebScraping:
         large_container = self.driver.find_elements(By.CLASS_NAME, "product-inner")[number]
         return large_container
     
-    def find_image(self, container):
-        img = container.find_element(By.XPATH, '//div[@class= "pr_lazy_img main-img nt_img_ratio nt_bg_lz lazyloadt4sed"]')
+    def find_non_script(self):
+        html = self.driver.page_source
+        soup = BeautifulSoup(html, "html.parser")
+        noscripts = soup.find_all("noscript")
+        for tag in noscripts:
+            img = tag.find("img")
+            if img and img.get("src"):
+                print("Image src found:", img["src"])
+                break
+    
+    def find_product_name(self):
+        product_name = self.driver.find_element(By.XPATH, "//h1[@class = 'product_title entry-title']")
+        return product_name.text
+        
+    def find_image(self):
+        img = self.driver.find_element(By.XPATH, '//div[@class= "t4s-img-noscript"]')
         return img
     
     def close_popup(self):
@@ -48,5 +65,16 @@ if __name__ == "__main__":
     scraper = WebScraping()
     scraper.close_popup()
     container = scraper.find_container(0)
-    img = scraper.find_image(container)
-    print(img)
+    container.click()
+    time.sleep(5)
+    product_name = scraper.find_product_name()
+    scraper.find_non_script()
+    # img = scraper.find_image()
+    # src = img.get_attribute("src")
+    # filename =os.makedirs("downloaded_images", src.split("/")[-1])
+    # response = requests.get(src)
+    # time.sleep(5)
+    # if response.status_code == 200:
+    #     with open(filename, "wb") as f:
+    #         f.write(response.content)
+    #     print(f"Image saved to: {filename}")
