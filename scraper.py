@@ -46,10 +46,10 @@ class WebScraping:
     def find_product_name(self):
         product_name = self.driver.find_element(By.XPATH, "//h1[@class = 'product_title entry-title']")
         return product_name.text
-        
-    def find_image(self):
-        img = self.driver.find_element(By.XPATH, '//div[@class= "t4s-img-noscript"]')
-        return img
+    
+    def get_product_link(self):
+        current_url = self.driver.current_url
+        return current_url
     
     def close_popup(self):
         try:
@@ -68,6 +68,7 @@ if __name__ == "__main__":
     container.click()
     time.sleep(5)
     product_name = scraper.find_product_name()
+    print(scraper.get_product_link())
     scraper.find_non_script()
     # img = scraper.find_image()
     # src = img.get_attribute("src")
