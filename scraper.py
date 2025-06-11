@@ -27,6 +27,16 @@ class WebScraping:
     
     def change_to_cat(self):
         self.url = "https://petsthing.com.hk/collections/cat"
+        
+    def close_popup(self):
+        try:
+            close_picture = r"C:\Users\stars\OneDrive\Desktop\shopify_scrapping\pictures\close_button.png"
+            time.sleep(5)
+            close_location = pyautogui.locateOnScreen(close_picture)
+            pyautogui.click(close_location)
+            time.sleep(2)
+        except:
+            pass
 
     def find_container(self, number):
         time.sleep(5)
@@ -40,10 +50,10 @@ class WebScraping:
         for tag in noscripts:
             img = tag.find("img")
             if img and img.get("src"):
-                print("Image src found:", img["src"])
+                return img["src"]
                 break
     
-    def find_product_name(self):
+    def get_product_name(self):
         product_name = self.driver.find_element(By.XPATH, "//h1[@class = 'product_title entry-title']")
         return product_name.text
     
@@ -51,15 +61,10 @@ class WebScraping:
         current_url = self.driver.current_url
         return current_url
     
-    def close_popup(self):
-        try:
-            close_picture = r"C:\Users\stars\OneDrive\Desktop\shopify_scrapping\pictures\close_button.png"
-            time.sleep(5)
-            close_location = pyautogui.locateOnScreen(close_picture)
-            pyautogui.click(close_location)
-            time.sleep(2)
-        except:
-            pass
+    def get_product_price(self):
+        price_tag = self.driver.find_element(By.ID,"price_ppr")
+        real_price = price_tag.find_element(By.XPATH, "//ins")
+        return real_price.text
 
 if __name__ == "__main__":
     scraper = WebScraping()
@@ -67,9 +72,13 @@ if __name__ == "__main__":
     container = scraper.find_container(0)
     container.click()
     time.sleep(5)
-    product_name = scraper.find_product_name()
+    product_name = scraper.get_product_name()
+    print(product_name)
     print(scraper.get_product_link())
-    scraper.find_non_script()
+    print(scraper.get_product_price())
+    product_image = scraper.find_non_script()
+    response = requests.get(product_image)
+    
     # img = scraper.find_image()
     # src = img.get_attribute("src")
     # filename =os.makedirs("downloaded_images", src.split("/")[-1])
