@@ -1,11 +1,11 @@
 import scraper
 import excel
 import time
-import requests
-from openpyxl.drawing.image import Image as ExcelImage
 
 if __name__ == "__main__":
     scraper = scraper.WebScraping()
+    product_info = {}
+    products = []
 
     #search product from the shopify website
     scraper.close_popup()
@@ -17,17 +17,15 @@ if __name__ == "__main__":
     product_price = scraper.get_product_price()
     product_link = scraper.get_product_link()
     product_pic = "https:" + scraper.find_non_script()
-    response = requests.get(product_pic)
+    
+    product_info["Name"] = product_name
+    product_info["Price"] = product_price 
+    product_info["Picture"] = product_pic
+    product_info["Link"] = product_link 
     
     excel = excel.Excel()
-    with open(product_name, 'wb') as f:
-        f.write(response.content)
+    last_row = excel.find_last_row("Dog")
+    excel.fill_in_value("Dog", last_row, product_info, pic)
     
-    img = ExcelImage(product_name)
-    img.width = 100
-    img.height = 100
-    excel.workbook["Dog"].row_dimensions[2].height = 100
-    excel.workbook["Dog"].column_dimensions["A"].width = 100
-    excel.workbook["Dog"].add_image(img, "A2")
-    excel.workbook.save(excel.file_path)
+    
     
